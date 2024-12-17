@@ -2,58 +2,57 @@ import { Request, Response } from "express";
 import Student from "../models/Student";
 import Course from "../models/Course";
 import { mergeSort, quickSort } from "../helpers/sorting_argorithms";
+import { isFieldValid, isValidOrder } from "../helpers/helper";
 import logger from "../utils/logger";
+import redisClient from "../utils/redis_client";
 
-function isFieldValid(model: any, field: string):boolean {
-  return (Object.keys(model.schema.obj).includes(field));
-}
 
-function isValidOrder(order: string | undefined): boolean {
-  return order === "asc" || order === "desc";
-}
 
 
 export async function getSortedStudents(req: Request, res: Response) {
-  const { field , order } = req.query; // Get sort field (e.g., 'grade') and order (e.g., 'asc')
+  const { field, order } = req.query; // Get sort field and order
   logger.info(
-    "Attempting to sort students with field:",
-    field,
-    "and order:",
-    order
+    `Attempting to sort students with field: ${field} and order: ${order}`
   );
 
-  // Validate if the provided field exists in the Student model
+  // Validate field
   if (!field || !isFieldValid(Student, field as string)) {
     logger.error(`Invalid field parameter: ${field}`);
-    res
-      .status(400)
-      .json({
-        message: `Invalid field parameter: ${field}. Please provide a valid field.`,
-      });
-       return;
+    res.status(400).json({
+      message: `Invalid field parameter: ${field}. Please provide a valid field.`,
+    });
+    return;
   }
 
-  // Validate if the provided order is 'asc' or 'desc'
   if (order && !isValidOrder(order as string)) {
     logger.error(`Invalid order parameter: ${order}`);
-     res
-      .status(400)
-      .json({
-        message: `Invalid order parameter: ${order}. Valid values are 'asc' or 'desc'.`,
-      });
-      return;
+    res.status(400).json({
+      message: `Invalid order parameter: ${order}. Valid values are 'asc' or 'desc'.`,
+    });
+    return;
   }
 
+  const cacheKey = `students:sorted:${field}:${order || "asc"}`; // Create a unique Redis key
+
   try {
-    const students = await Student.find({});
-    if (!students){
-         logger.warn("No students found");
-      res.status(404).json({ message: "No students found" });
+    // 1. Check if data exists in Redis
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      logger.info("Returning sorted students from cache");
+      res.json(JSON.parse(cachedData)); 
+      return // Return cached data
     }
 
-    let sortedStudents = mergeSort(students, field as string); // Use sorting algorithm
+    // 2. Fetch students from DB
+    const students = await Student.find({});
+    if (!students) {
+      logger.warn("No students found");
+      res.status(404).json({ message: "No students found" });
+      return 
+    }
 
-    // If the order is descending, reverse the sorted array
+    let sortedStudents = mergeSort(students, field as string);
+
     if (order === "desc") {
       sortedStudents = sortedStudents.reverse();
     }
@@ -61,58 +60,71 @@ export async function getSortedStudents(req: Request, res: Response) {
     const result = sortedStudents.map((student) => ({
       id: student._id,
       name: student.name,
-      [field as string]: student[field as string], 
+      [field as string]: student[field as string],
     }));
-    logger.info("Sorted students successfully");
-    res.json({
+
+    const responsePayload = {
       field: field,
-      order: order || "asc", // Default to 'asc' if not provided
+      order: order || "asc",
       data: result,
+    };
+
+    // 3. Cache the sorted result in Redis with an expiry (60 seconds)
+    await redisClient.set(cacheKey, JSON.stringify(responsePayload), {
+      EX: 60,
     });
+
+    logger.info("Sorted students successfully and cached the result");
+    res.json(responsePayload);
   } catch (error) {
     logger.error("Error sorting students:", error);
     res.status(500).json({ message: "Error sorting students", error });
   }
 }
 
-// Sort Courses
+
 export async function getSortedCourses(req: Request, res: Response) {
-  const { field, order } = req.query; // Get sort field, for example: 'title'
+  const { field, order } = req.query;
   logger.info(
-    "Attempting to sort courses with field:",
-    field,
-    "and order:",
-    order
+    `Attempting to sort courses with field: ${field} and order: ${order}`
   );
 
-  // Validate if the provided field exists in the Course model
+  // Validate field
   if (!field || !isFieldValid(Course, field as string)) {
     logger.error(`Invalid field parameter: ${field}`);
-     res
-      .status(400)
-      .json({
-        message: `Invalid field parameter: ${field}. Please provide a valid field.`,
-      });
-      return;
+    res.status(400).json({
+      message: `Invalid field parameter: ${field}. Please provide a valid field.`,
+    });
+    return;
   }
 
-  // Validate if the provided order is 'asc' or 'desc'
   if (order && !isValidOrder(order as string)) {
     logger.error(`Invalid order parameter: ${order}`);
-     res
-      .status(400)
-      .json({
-        message: `Invalid order parameter: ${order}. Valid values are 'asc' or 'desc'.`,
-      });
-      return;
+    res.status(400).json({
+      message: `Invalid order parameter: ${order}. Valid values are 'asc' or 'desc'.`,
+    });
+    return;
   }
 
+  const cacheKey = `courses:sorted:${field}:${order || "asc"}`;
+
   try {
-    const courses = await Course.find({}); // Fetch all courses
+    //  Check Redis cache first
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+      logger.info("Cache hit");
+      res.json(JSON.parse(cachedData));
+      return 
+    }
 
-    let sortedCourses = quickSort(courses, field as string); // Use sorting algorithm
+    const courses = await Course.find({});
+    if (!courses) {
+      logger.warn("No courses found");
+      res.status(404).json({ message: "No courses found" });
+      return 
+    }
 
-    // If the order is descending, reverse the sorted array
+    let sortedCourses = quickSort(courses, field as string);
     if (order === "desc") {
       sortedCourses = sortedCourses.reverse();
     }
@@ -120,14 +132,21 @@ export async function getSortedCourses(req: Request, res: Response) {
     const result = sortedCourses.map((course) => ({
       id: course._id,
       courseCode: course.courseCode,
-      [field as string]: course[field as string], // Dynamically include the sorted field in the response
+      [field as string]: course[field as string],
     }));
 
-    res.json({
+    const responsePayload = {
       field: field,
-      order: order || "asc", // Default to 'asc' if not provided
+      order: order || "asc",
       data: result,
+    };
+
+    await redisClient.set(cacheKey, JSON.stringify(responsePayload), {
+      EX: 60,
     });
+
+    logger.info("cache miss");
+    res.json(responsePayload);
   } catch (error) {
     logger.error("Error sorting courses:", error);
     res.status(500).json({ message: "Error sorting courses", error });

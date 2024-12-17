@@ -1,0 +1,10 @@
+POST http://localhost:3000/api/courser
+Content-Type: application/json
+
+{
+  "courseCode": "CS101",
+  "title": "Introduction to Computer Science",
+  "description": "This course provides an introduction to the fundamental concepts of computer science, including programming, algorithms, and data structures.",
+  "department": "Computer Science",
+  "semester": "Fall"
+}

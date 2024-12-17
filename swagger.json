@@ -1,0 +1,730 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Student Management System API",
+    "description": "A comprehensive API for managing students, courses, and enrollments in an educational institution",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "api-support@example.com"
+    }
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": ["http"],
+    "securityDefinitions": {
+    "BearerToken": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "JWT Authorization header using the Bearer token. Format: 'Bearer {token}'"
+    }
+  },
+  "security": [
+    {
+      "BearerToken": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication and password management endpoints"
+    },
+    {
+      "name": "Students",
+      "description": "Operations for managing student information"
+    },
+    {
+      "name": "Courses",
+      "description": "Endpoints for course management and retrieval"
+    },
+    {
+      "name": "Enrollments",
+      "description": "Course enrollment and student registration operations"
+    },
+    {
+      "name": "Sorting",
+      "description": "Endpoints for sorting students and courses"
+    }
+  ],
+  "paths": {
+        "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Login",
+        "description": "Authenticate a user with email and password",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "student@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "SecurePassword123!"
+                }
+              },
+              "required": ["email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            }
+          },
+          "400": {"description": "Bad Request - Invalid input"},
+          "401": {"description": "Unauthorized - Invalid credentials"},
+          "404": {"description": "Not Found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/auth/password-reset": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Reset User Password",
+        "description": "Reset password using a valid reset token",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Password reset token"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "newPassword": {
+                  "type": "string",
+                  "example": "NewSecurePassword456!"
+                }
+              },
+              "required": ["newPassword"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Password successfully reset"},
+          "400": {"description": "Bad Request - Invalid input"},
+          "401": {"description": "Unauthorized - Invalid or expired token"},
+          "404": {"description": "Not Found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/auth/request-reset": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Request Password Reset",
+        "description": "Send a password reset link to the user's email",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "example": "student@example.com"
+                }
+              },
+              "required": ["email"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Reset link sent successfully"},
+          "400": {"description": "Bad Request - Invalid email"},
+          "404": {"description": "Email not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/students/": {
+      "post": {
+        "tags": ["Students"],
+        "summary": "Create a New Student",
+        "description": "Register a new student in the system",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "John Doe"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "john.doe@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "StudentPass123!"
+                },
+                "gender": {
+                  "type": "string",
+                  "example": "Male"
+                },
+                "dateOfBirth": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2000-01-15"
+                },
+                "grade": {
+                  "type": "string",
+                  "example": "10"
+                },
+                "residence": {
+                  "type": "string",
+                  "example": "New York"
+                },
+                "phone": {
+                  "type": "string",
+                  "example": "+1-555-123-4567"
+                }
+              },
+              "required": ["name", "email", "password", "grade"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {"description": "Student created successfully"},
+          "400": {"description": "Bad Request - Invalid input"},
+          "500": {"description": "Internal Server Error"}
+        }
+      },
+      "get": {
+        "tags": ["Students"],
+        "summary": "List Students",
+        "description": "Retrieve a list of students with optional filtering",
+        "parameters": [
+          {"name": "name", "in": "query", "type": "string", "description": "Filter by student name"},
+          {"name": "grade", "in": "query", "type": "string", "description": "Filter by grade"},
+          {"name": "gender", "in": "query", "type": "string", "description": "Filter by gender"},
+          {"name": "minGrade", "in": "query", "type": "string", "description": "Minimum grade filter"},
+          {"name": "maxGrade", "in": "query", "type": "string", "description": "Maximum grade filter"},
+          {"name": "page", "in": "query", "type": "string", "description": "Page number for pagination"},
+          {"name": "limit", "in": "query", "type": "string", "description": "Number of results per page"}
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved students",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "string"},
+                  "name": {"type": "string"},
+                  "grade": {"type": "string"}
+                }
+              }
+            }
+          },
+          "404": {"description": "No students found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/students/{id}": {
+      "get": {
+        "tags": ["Students"],
+        "summary": "Get Student Details",
+        "description": "Retrieve details of a specific student",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique identifier of the student"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved student details",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {"type": "string"},
+                "email": {"type": "string"},
+                "grade": {"type": "string"},
+                "gender": {"type": "string"}
+              }
+            }
+          },
+          "403": {"description": "Forbidden - Insufficient permissions"},
+          "404": {"description": "Student not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      },
+      "put": {
+        "tags": ["Students"],
+        "summary": "Update Student",
+        "description": "Update details of an existing student",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique identifier of the student"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Student updated successfully"},
+          "400": {"description": "Bad Request - Invalid input"},
+          "404": {"description": "Student not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      },
+      "delete": {
+        "tags": ["Students"],
+        "summary": "Delete Student",
+        "description": "Remove a student from the system",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique identifier of the student"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Student deleted successfully"},
+          "404": {"description": "Student not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/courses/": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "List Courses",
+        "description": "Retrieve a list of courses with optional filtering",
+        "parameters": [
+          {
+            "name": "department",
+            "in": "query",
+            "type": "string",
+            "description": "Filter courses by department"
+          },
+          {
+            "name": "semester",
+            "in": "query",
+            "type": "string",
+            "description": "Filter courses by semester"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved courses",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "courseCode": {"type": "string"},
+                  "title": {"type": "string"},
+                  "department": {"type": "string"},
+                  "semester": {"type": "string"}
+                }
+              }
+            }
+          },
+          "404": {"description": "No courses found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      },
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Create a New Course",
+        "description": "Add a new course to the system",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "courseCode": {
+                  "type": "string",
+                  "example": "CS101"
+                },
+                "title": {
+                  "type": "string",
+                  "example": "Introduction to Computer Science"
+                },
+                "description": {
+                  "type": "string",
+                  "example": "Fundamental concepts of computer science and programming"
+                },
+                "department": {
+                  "type": "string",
+                  "example": "Computer Science"
+                },
+                "semester": {
+                  "type": "string",
+                  "example": "Fall 2024"
+                }
+              },
+              "required": ["courseCode", "title", "department", "semester"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {"description": "Course created successfully"},
+          "400": {"description": "Bad Request - Invalid input"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/courses/{courseCode}": {
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Get Course Details",
+        "description": "Retrieve details of a specific course",
+        "parameters": [
+          {
+            "name": "courseCode",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique course code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved course details",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "courseCode": {"type": "string"},
+                "title": {"type": "string"},
+                "description": {"type": "string"},
+                "department": {"type": "string"},
+                "semester": {"type": "string"}
+              }
+            }
+          },
+          "404": {"description": "Course not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      },
+      "put": {
+        "tags": ["Courses"],
+        "summary": "Update Course",
+        "description": "Update details of an existing course",
+        "parameters": [
+          {
+            "name": "courseCode",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique course code"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {"type": "string"},
+                "description": {"type": "string"},
+                "department": {"type": "string"},
+                "semester": {"type": "string"}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {"description": "Course updated successfully"},
+          "400": {"description": "Bad Request - Invalid input"},
+          "404": {"description": "Course not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      },
+      "delete": {
+        "tags": ["Courses"],
+        "summary": "Delete Course",
+        "description": "Remove a course from the system",
+        "parameters": [
+          {
+            "name": "courseCode",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique course code"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Course deleted successfully"},
+          "404": {"description": "Course not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/enrollments/": {
+      "post": {
+        "tags": ["Enrollments"],
+        "summary": "Create Enrollment",
+        "description": "Enroll a student in a course",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "studentId": {
+                  "type": "string",
+                  "example": "S12345"
+                },
+                "courseCode": {
+                  "type": "string",
+                  "example": "CS101"
+                }
+              },
+              "required": ["studentId", "courseCode"]
+            }
+          }
+        ],
+        "responses": {
+          "201": {"description": "Enrollment created successfully"},
+          "400": {"description": "Bad Request - Invalid input"},
+          "403": {"description": "Forbidden - Enrollment not allowed"},
+          "404": {"description": "Student or Course not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/enrollments/student/{studentId}": {
+      "get": {
+        "tags": ["Enrollments"],
+        "summary": "Get Student Enrollments",
+        "description": "Retrieve all courses a student is enrolled in",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique student identifier"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved student enrollments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "enrollmentId": {"type": "string"},
+                  "courseCode": {"type": "string"},
+                  "courseTitle": {"type": "string"},
+                  "semester": {"type": "string"}
+                }
+              }
+            }
+          },
+          "403": {"description": "Forbidden - Insufficient permissions"},
+          "404": {"description": "Student not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/enrollments/course/{courseCode}": {
+      "get": {
+        "tags": ["Enrollments"],
+        "summary": "Get Course Enrollments",
+        "description": "Retrieve all students enrolled in a specific course",
+        "parameters": [
+          {
+            "name": "courseCode",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique course code"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string",
+            "description": "Authorization token"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string",
+            "description": "Page number for pagination"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string",
+            "description": "Number of results per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved course enrollments",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "studentId": {"type": "string"},
+                  "studentName": {"type": "string"},
+                  "enrollmentDate": {"type": "string", "format": "date"}
+                }
+              }
+            }
+          },
+          "400": {"description": "Bad Request"},
+          "401": {"description": "Unauthorized"},
+          "403": {"description": "Forbidden - Insufficient permissions"},
+          "404": {"description": "Course not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/enrollments/{enrollmentId}": {
+      "delete": {
+        "tags": ["Enrollments"],
+        "summary": "Drop Enrollment",
+        "description": "Remove a student from a course",
+        "parameters": [
+          {
+            "name": "enrollmentId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Unique enrollment identifier"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Enrollment dropped successfully"},
+          "403": {"description": "Forbidden - Cannot drop enrollment"},
+          "404": {"description": "Enrollment not found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/sort/students": {
+      "get": {
+        "tags": ["Sorting"],
+        "summary": "Sort Students",
+        "description": "Retrieve students sorted by a specific field",
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "type": "string",
+            "description": "Field to sort by (e.g., name, grade, dateOfBirth)",
+            "required": true
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order (asc or desc)",
+            "enum": ["asc", "desc"],
+            "default": "asc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved sorted students",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {"type": "string"},
+                  "name": {"type": "string"},
+                  "grade": {"type": "string"}
+                }
+              }
+            }
+          },
+          "400": {"description": "Bad Request - Invalid sorting field"},
+          "404": {"description": "No students found"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    },
+    "/api/sort/courses": {
+      "get": {
+        "tags": ["Sorting"],
+        "summary": "Sort Courses",
+        "description": "Retrieve courses sorted by a specific field",
+        "parameters": [
+          {
+            "name": "field",
+            "in": "query",
+            "type": "string",
+            "description": "Field to sort by (e.g., title, department, semester)",
+            "required": true
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "description": "Sort order (asc or desc)",
+            "enum": ["asc", "desc"],
+            "default": "asc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved sorted courses",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "courseCode": {"type": "string"},
+                  "title": {"type": "string"},
+                  "department": {"type": "string"}
+                }
+              }
+            }
+          },
+          "400": {"description": "Bad Request - Invalid sorting field"},
+          "500": {"description": "Internal Server Error"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+import { body, validationResult } from "express-validator";
+import {NextFunction, Request,Response} from "express";
+import {Semester} from "../../types/model_types";
+import logger from "../../utils/logger";
+
+export const courseValidator = [
+  body("courseCode")
+    .notEmpty()
+    .withMessage("Course code is required")
+    .isString()
+    .withMessage("Course code must be a string")
+    .matches(/^[A-Za-z]+[0-9]+$/)
+    .withMessage("Course code must follow the format, e.g., 'CS101'"),
+
+  body("title")
+    .notEmpty()
+    .withMessage("Title is required")
+    .isString()
+    .withMessage("Title must be a string")
+    .isLength({ min: 3 })
+    .withMessage("Title must be at least 3 characters long")
+    .isLength({ max: 100 })
+    .withMessage("Title must not exceed 100 characters"),
+
+  body("description")
+    .optional()
+    .isString()
+    .withMessage("Description must be a string")
+    .isLength({ max: 500 })
+    .withMessage("Description should not exceed 500 characters"),
+
+  body("department")
+    .notEmpty()
+    .withMessage("Department is required")
+    .isString()
+    .withMessage("Department must be a string"),
+
+  body("semester")
+    .notEmpty()
+    .withMessage("Semester is required")
+    .isString()
+    .withMessage("Semester must be a string")
+    .isIn(Object.values(Semester))
+    .withMessage(
+      `Semester must be one of: ${Object.values(Semester).join(", ")}`
+    ),
+
+  // Error handler that runs after validation checks
+  (req: Request, res: Response, next: NextFunction) => {
+    logger.debug("Validating course data...");
+    const errors = validationResult(req); // Collect validation errors
+    if (!errors.isEmpty()) {
+      // If there are errors, send a response with error messages
+      logger.warn("Couser data is invalid");
+      res.status(400).json({
+        errorMessage: errors
+          .array()
+          .map((error) => error.msg) // Map error messages
+          .join("\n"), // Combine all error messages in one string
+      });
+      return;
+    }
+    // If there are no errors, proceed to the next middleware
+    logger.info("Course data is valid");
+    next();
+  },
+];

@@ -1,0 +1,54 @@
+services: 
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - 3000:3000
+    env_file:
+      - .env        #for env file if not set in the environment
+    environment:
+      - JWT_SECRET=secret
+      - MAILTRAP_USER=b67aa1b8af4621
+      - MAILTRAP_PASSWORD=04f42f6d8f7f2b
+      - MONGO_URI=mongodb://root:secret@db:27017/schoolDB?authSource=admin 
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        - path: ./tsconfig.json
+          action: rebuild
+        - path: .
+          target: /app
+          action: sync
+    depends_on:
+      - db
+      - redis
+  mongo-express:
+    image: mongo-express:latest
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: secret
+      ME_CONFIG_MONGODB_SERVER: db            
+    ports:
+      - "8081:8081" # Mongo-Express will be accessible on http://localhost:8081
+    depends_on:
+      - db
+  db:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - db_data:/data/db
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis_data:/data
+volumes:
+  db_data:
+  redis_data:

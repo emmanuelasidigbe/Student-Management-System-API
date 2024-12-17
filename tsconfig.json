@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./"],
+    "types": ["node", "express"],
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "./**/*.ts",  // Include all .ts files
+    "types.d.ts"  // Explicitly include the type file
+  ],
+  "exclude": ["node_modules", "dist"]
+}

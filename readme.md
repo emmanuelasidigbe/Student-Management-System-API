@@ -99,13 +99,6 @@ The **School Management System API** provides a complete set of RESTful API endp
 - **Docker Desktop**
 
 ### Environment Variables:
-Ensure you have the following environment variables configured in a `.env` file:
-- **JWT_SECRET**: Secret key for signing JWT tokens.
-- **DB_URI**: MongoDB connection URI.
-- **PORT**: Port on which the server will run (default is 3000).
-- **EMAIL_SMTP**: SMTP settings for password reset emails (optional).
-
-### NOTE
 - Add the required  envs to the api service in the  compose.yaml file before running the project if you want to change any of the already existing envs
 
 ### Installing Dependencies:

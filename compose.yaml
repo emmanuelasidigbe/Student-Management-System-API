@@ -9,8 +9,8 @@ services:
       - .env        #for env file if not set in the environment
     environment:
       - JWT_SECRET=secret
-      - MAILTRAP_USER=b67aa1b8af4621
-      - MAILTRAP_PASSWORD=04f42f6d8f7f2b
+      - MAILTRAP_USER=
+      - MAILTRAP_PASSWORD=
       - MONGO_URI=mongodb://root:secret@db:27017/schoolDB?authSource=admin 
     develop:
       watch:

@@ -15,15 +15,8 @@ A web API designed to streamline and digitize school administrative processes, f
   - [Sort Endpoints](#sort-endpoints)
 - [Setup](#setup)
 - [Environment Variables](#environment-variables)
-- [Running the Application](#running-the-application)
-- [Development Considerations](#development-considerations)
-  - [Validation](#validation)
-  - [Error Handling](#error-handling)
-  - [Logging](#logging)
-  - [Caching](#caching)
-- [Performance Considerations](#performance-considerations)
+- [Installing Dependencies](#running-the-application)
 - [Testing](#testing)
-- [API Documentation](#api-documentation)
 
 ## Project Overview
 
@@ -110,5 +103,38 @@ cd Student-Management-System-API
 docker compose up
 ```
 
+## Testing
+This should be done after running the project
 
+
+### Running rest
+```bash
+docker exec -it <container id> npm run test 
+```
+### Note
+you can use this command to view the runnig containers 
+```bash
+docker ps
+```
+
+# Test Documentation
+This document provides an overview of the testing strategy, coverage, and implementation for the Student Management System (SMS). The goal is to ensure functionality, reliability, and maintainability.
+
+## Test Structure
+- `/__tests__/`: Contains unit tests for individual components or functions.
+- `/integration`: Includes tests to validate module interactions.
+
+
+File Naming Convention: 
+Tests are named as `componentName.test.ts`.
+
+## Test Coverage
+### Authentication System
+- Validate login with correct credentials
+- Test error handling for invalid credentials
+- Ensure JWT tokens are correctly generated and verified
+
+### Student Management
+- Create, read, update, and delete (CRUD) operations
+- Access control validation based on user roles
 

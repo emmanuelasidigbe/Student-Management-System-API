@@ -1,6 +1,7 @@
 import { body,validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
-import { Gender } from "../../types/model_types"; 
+import { Gender } from "../../types/model_types";
+import { executeValidator } from "./execute.validator";
 import logger from "../../utils/logger";
 
 export const studentValidator = [
@@ -33,22 +34,5 @@ export const studentValidator = [
   body("dateOfBirth").isDate().withMessage("Enter a valid date of birth"),
 
   // Error handler that runs after validation checks
-  (req: Request, res: Response, next: NextFunction) => {
-    logger.debug("Validating student data...");
-    const errors = validationResult(req); // Collect validation errors
-    if (!errors.isEmpty()) {
-      // If there are errors, send a response with error messages
-      logger.warn("Student data is invalid");
-      res.status(400).json({
-        errorMessage: errors
-          .array()
-          .map((error) => error.msg) // Map error messages
-          .join("\n"), // Combine all error messages in one string
-      });
-      return;
-    }
-    // If there are no errors, proceed to the next middleware
-    logger.info("Student data is valid");
-    next();
-  },
+  executeValidator,
 ];

@@ -8,6 +8,7 @@ import { isEmail, isEmpty } from "validator";
 
 export async function Login(req: Request, res: Response) {
   const { email, password } = req.body;
+  
     if (!isEmail(email) || isEmpty(password)) {
       logger.warn("Email or Password is required");
       res.status(400).json({ success: false, message: "Email or Password is required" });
@@ -111,14 +112,8 @@ export async function ResetPassword(req: Request, res: Response) {
     });
   } catch (error) {
     logger.error("Error resetting password:", error);
-    if ((error as any).name === "TokenExpiredError") {
-        logger.error("Token has expired");
-      res.status(401).json({ success: false, message: "Token has expired" });
-    } else {
         logger.error("Server error");
-      res.status(500).json({ success: false, message: "Server error", error });
-    }
-  }
+      res.status(500).json({ success: false, message: "Server error", error });}
 }
 
 

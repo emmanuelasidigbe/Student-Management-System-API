@@ -61,7 +61,7 @@ export async function enrollStudent(req: Request, res: Response) {
       .status(201)
       .json({ message: "Student enrolled successfully", enrollment });
   } catch (error) {
-    console.error(error);
+    logger.error("Error enrolling student");
     res.status(500).json({ message: "Error enrolling student", error });
   }
 }

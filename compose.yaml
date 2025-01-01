@@ -11,7 +11,8 @@ services:
       - JWT_SECRET=secret
       - MAILTRAP_USER=
       - MAILTRAP_PASSWORD=
-      - MONGO_URI=mongodb://root:secret@db:27017/schoolDB?authSource=admin 
+      - MONGO_URI=mongodb://root:secret@db:27017/schoolDB?authSource=admin
+      - TEST_MONGO_URI=mongodb://root:secret@db:27017/TestDB?authSource=admin
     develop:
       watch:
         - path: ./package.json

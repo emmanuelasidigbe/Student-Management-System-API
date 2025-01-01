@@ -35,15 +35,16 @@ export async function getStudents(req: Request, res: Response) {
 
     // Get the total count of documents matching the query (for pagination meta-data)
     const total = await Student.countDocuments(query);
+    
 
-    if (!students) {
+    if (students.length===0) {
       logger.error("No students found");
       res.status(404).json({ message: "No students found" });
      return 
     }
 
     logger.info("Students retrieved successfully"),
-    res.json({
+    res.status(200).json({
       success: true,
       data: students,
       pagination: {
@@ -63,7 +64,7 @@ export async function getStudentById(req: Request, res: Response) {
   const _id: string = req.params.id;
   const user = (req as any).user;
   try {
-    logger.debug("Attempting to retrieve student with ID:", _id);
+    logger.info("Attempting to retrieve student with ID:", _id);
       const student = await Student.findById(_id);
     if (!student) {
       logger.warn(`Student with ID ${_id} not found`);
@@ -71,7 +72,10 @@ export async function getStudentById(req: Request, res: Response) {
       return 
       
     }
-     if (user.modelType === "Student" && user._id !== student._id) {
+     if (
+       user.modelType === "Student" &&
+       user.id !== (student._id as any).toString()
+     ) {
        logger.warn("You are not authorized to see this data");
        res.status(403).json({
          message: "You are not authorized to see this data",
@@ -79,10 +83,10 @@ export async function getStudentById(req: Request, res: Response) {
        return;
      }
       
-    res.json({ success: true, data: student });
+    res.status(200).json({ success: true, data: student });
   } catch (error) {
     logger.error("Error retrieving student:", error);
-    res.status(500).json({ message: "Error retrieving student" });
+    res.status(500).json("error retrieving student")
   }
 }
 export async function createStudent(req: Request, res: Response) {
@@ -105,11 +109,6 @@ export async function createStudent(req: Request, res: Response) {
       dateOfBirth,
     });
 
-    if(!newStudent){
-      logger.warn("Failed to create student");
-      res.status(500).json({ message: "Failed to save student" });
-      return 
-    }
     // Respond with the created student
     logger.info("Student created successfully");
      res.status(201).json({
@@ -128,20 +127,26 @@ export async function updateStudent(req: Request, res: Response) {
   const updateData = req.body; // The updated student data
   logger.info("Attempting to update student with ID:", id);
   try {
-    
+     const student = await Student.findById(id);
+     if(!student){
+      logger.warn(`Student with ID ${id} not found. Update operation failed.`);
+       res.status(404).json({ message: "Student not found" });
+      return
+     }
+    if ((req as any).user.modelType === "Student" && (req as any).user.id !== (student._id as any).toString()) {
+
+      logger.warn("You are not authorized to update this student");
+      res.status(403).json({
+        message: "You are not authorized to update this student",
+      });
+      return
+    }
     // Find the student by ID and update it
     const updatedStudent = await Student.findByIdAndUpdate(
       id, // The ID of the student to update
       updateData, 
       { new: true, runValidators: true } // 'new: true' ensures the updated object is returned; 'runValidators' ensures validation is applied
     );
-
-    if (!updatedStudent) {
-      logger.warn(`Student with ID ${id} not found. Update operation failed.`);
-       res.status(404).json({ message: "Student not found" });
-      return
-    }
-
     // Send the updated student data as a response
     res.json({ success: true, data: updatedStudent });
   } catch (error) {
@@ -168,7 +173,7 @@ export async function deleteStudent(req: Request, res: Response) {
     }
 
     // If deletion is successful, return the deleted student data
-    logger.warn(`Student with ID ${id}, Delete operation success.`);
+    logger.info(`Student with ID ${id}, Delete operation success.`);
     res.json({ success: true, data: deletedStudent });
   } catch (error) {
     // Log an error message and return a 500 response for server errors

@@ -37,7 +37,7 @@ export const verifyToken = (
       next();
     });
   } catch (error) {
-    console.error("Error verifying token:", error);
+    logger.error("Error verifying token:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
@@ -85,7 +85,7 @@ export const verifyTokenAndInstructor = (
       next();
     });
   } catch (error) {
-    console.error("Error verifying token:", error);
+    logger.error("Error verifying token:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

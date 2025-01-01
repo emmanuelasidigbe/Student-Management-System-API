@@ -45,7 +45,7 @@ export async function getSortedStudents(req: Request, res: Response) {
 
     // 2. Fetch students from DB
     const students = await Student.find({});
-    if (!students) {
+    if (!students || students.length === 0) {
       logger.warn("No students found");
       res.status(404).json({ message: "No students found" });
       return 
@@ -118,7 +118,7 @@ export async function getSortedCourses(req: Request, res: Response) {
     }
 
     const courses = await Course.find({});
-    if (!courses) {
+    if (!courses || courses.length === 0) {
       logger.warn("No courses found");
       res.status(404).json({ message: "No courses found" });
       return 
@@ -132,6 +132,7 @@ export async function getSortedCourses(req: Request, res: Response) {
     const result = sortedCourses.map((course) => ({
       id: course._id,
       courseCode: course.courseCode,
+      title: course.title,
       [field as string]: course[field as string],
     }));
 

@@ -21,7 +21,7 @@ export async function getCourses(req: Request, res: Response) {
 
     // Find courses with the given filter
     const courses = await Course.find(query);
-    if (!courses.length) {
+    if (courses.length===0) {
       // Check if courses array is empty
       logger.warn("No courses found");
       res.status(404).json({
@@ -88,11 +88,6 @@ export async function createCourse(req: Request, res: Response) {
       department,
       semester,
     });
-    if (!newCourse) {
-      logger.warn("Failed to create course");
-      res.status(500).json({ message: "Failed to create course" });
-      return;
-    }
 
     logger.info("Course created successfully:", newCourse);
 
@@ -128,7 +123,7 @@ export async function updateCourse(req: Request, res: Response) {
 
     res.status(200).json(updatedCourse); // Return the updated course details
   } catch (error) {
-    console.error(error);
+    logger.error("Error updating course:", error);
     res.status(500).json({ message: "Internal Server error" });
   }
 }

@@ -28,7 +28,7 @@ export async function enrollStudent(req: Request, res: Response) {
       res.status(404).json({ message: "Course not found" });
       return;
     }
-    if (user.modelType === "Student" && user._id !== student._id) {
+    if (user.modelType === "Student" && user.id !== student._id) {
       logger.warn("You are not authorized to enroll this student");
       res.status(403).json({
         message: "You are not authorized to enroll this student",
@@ -82,7 +82,7 @@ export async function getEnrollmentsForStudent(req: Request, res: Response) {
         .json({ message: "No enrollments found for this student" });
       return;
     }
-    if (user.modelType === "Student" && user._id !== enrollments[0].studentId) {
+    if (user.modelType === "Student" && user.id !== enrollments[0].studentId) {
       logger.warn("You are not authorized to see this data");
       res.status(403).json({
         message: "You are not authorized to see this data",
@@ -165,7 +165,7 @@ export async function cancelEnrollment(req: Request, res: Response) {
       res.status(404).json({ message: "Enrollment not found" });
       return;
     }
-    if (user.modelType === "Student" && user._id !== enrollment.studentId) {
+    if (user.modelType === "Student" && user.id !== enrollment.studentId) {
       logger.warn("You are not authorized to enroll this student");
       res.status(403).json({
         message: "You are not authorized to enroll this student",

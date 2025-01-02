@@ -22,7 +22,7 @@ describe("cancelEnrollment function", () => {
   beforeEach(() => {
     mockRequest = {
       params: { enrollmentId: "enrollmentId1" },
-      user: { _id: "001", modelType: "Student" },
+      user: { id: "001", modelType: "Student" },
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
@@ -130,7 +130,7 @@ describe("enrollStudent function", () => {
   beforeEach(() => {
     mockRequest = {
       body: { studentId: "001", courseCode: "COE101" },
-      user: { _id: "001", modelType: "Student" },
+      user: { id: "001", modelType: "Student" },
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
@@ -271,7 +271,7 @@ describe("getEnrollmentsForStudent function", () => {
   beforeEach(() => {
     mockRequest = {
       params: { studentId: "001" },
-      user: { _id: "001", modelType: "Student" },
+      user: { id: "001", modelType: "Student" },
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
@@ -318,7 +318,7 @@ describe("getEnrollmentsForStudent function", () => {
       { _id: "enrollment1", studentId: "002", courseCode: "COE101" },
     ];
 
-    mockRequest.user = { _id: "001", modelType: "Student" };
+    mockRequest.user = { id: "001", modelType: "Student" };
     jest.spyOn(Enrollment, "find").mockResolvedValueOnce(mockEnrollments);
 
     await getEnrollmentsForStudent(

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1735750813278" clover="3.2.0">
-  <project timestamp="1735750813279" name="All files">
-    <metrics statements="619" coveredstatements="616" conditionals="131" coveredconditionals="124" methods="46" coveredmethods="46" elements="796" coveredelements="786" complexity="0" loc="619" ncloc="619" packages="11" files="27" classes="27"/>
+<coverage generated="1735758856136" clover="3.2.0">
+  <project timestamp="1735758856136" name="All files">
+    <metrics statements="619" coveredstatements="616" conditionals="131" coveredconditionals="124" methods="46" coveredmethods="45" elements="796" coveredelements="785" complexity="0" loc="619" ncloc="619" packages="11" files="27" classes="27"/>
     <package name="lab">
       <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <file name="sum.ts" path="C:\Users\EmmanuelAsidigbe\Desktop\webdev\amalitech\week05\lab\sum.ts">
@@ -720,9 +720,9 @@
       </file>
     </package>
     <package name="lab.utils">
-      <metrics statements="10" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+      <metrics statements="10" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
       <file name="redis_client.ts" path="C:\Users\EmmanuelAsidigbe\Desktop\webdev\amalitech\week05\lab\utils\redis_client.ts">
-        <metrics statements="10" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <metrics statements="10" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="4" count="2" type="stmt"/>

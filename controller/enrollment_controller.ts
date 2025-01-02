@@ -127,7 +127,7 @@ export async function getEnrollmentsForCourse(req: Request, res: Response) {
       .exec();
 
     // If no enrollments are found, respond with 404
-    if (!enrollments || enrollments.length === 0) {
+    if (enrollments.length === 0) {
       logger.warn("No enrollments found for this course");
       res.status(404).json({ message: "No enrollments found for this course" });
       return;

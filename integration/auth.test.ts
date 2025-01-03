@@ -82,7 +82,23 @@ describe("Authentication", () => {
         .post(`/api/auth/password-reset?token=${token}`)
         .send({ newPassword: "newstrongpassword1234" });
       expect(response.status).toBe(200);
+      expect(response.body).toStrictEqual({
+        success: true,
+        message: "Password reset successfully",
+      });
     })
+    it("should return 200 for login successfully", async () => {
+        const response= await supertest(app).post("/api/auth/login")
+        .send({email:"satoru@email.com",password:"newstrongpassword1234"})
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual({
+          success: true,
+          message: "Login successful",
+          token: expect.any(String),
+          user: expect.any(Object),
+        });
+    })
+
   });
   describe("given a student has been created", () => {
     let token: string;
@@ -141,11 +157,24 @@ describe("Authentication", () => {
 
      token = response.body.token; /// this token is going to be used to reset the password for the student in the next test
    });
-   it("should reset the password for the instructor", async () => {
+   it("should reset the password for the student", async () => {
      const response = await supertest(app)
        .post(`/api/auth/password-reset?token=${token}`)
        .send({ newPassword: "newstrongpassword1234" });
      expect(response.status).toBe(200);
    });
+      it("should return 200 for login successfully", async () => {
+        const response = await supertest(app).post("/api/auth/login").send({
+          email: "kokoro@example.com",
+          password: "newstrongpassword1234",
+        });
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual({
+          success: true,
+          message: "Login successful",
+          token: expect.any(String),
+          user: expect.any(Object),
+        });
+      });
   });
 });

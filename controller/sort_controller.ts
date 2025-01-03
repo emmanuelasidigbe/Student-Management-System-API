@@ -32,7 +32,7 @@ export async function getSortedStudents(req: Request, res: Response) {
     return;
   }
 
-  const cacheKey = `students:sorted:${field}:${order || "asc"}`; // Create a unique Redis key
+  const cacheKey = `students:sorted:${field}:${order}`; // Create a unique Redis key
 
   try {
     // 1. Check if data exists in Redis
@@ -59,13 +59,14 @@ export async function getSortedStudents(req: Request, res: Response) {
 
     const result = sortedStudents.map((student) => ({
       id: student._id,
-      name: student.name,
+      name:student.name,
+      grade:student.grade,
       [field as string]: student[field as string],
     }));
 
     const responsePayload = {
       field: field,
-      order: order || "asc",
+      order: order,
       data: result,
     };
 
@@ -84,7 +85,7 @@ export async function getSortedStudents(req: Request, res: Response) {
 
 
 export async function getSortedCourses(req: Request, res: Response) {
-  const { field, order } = req.query;
+  const { field, order="asc" } = req.query;
   logger.info(
     `Attempting to sort courses with field: ${field} and order: ${order}`
   );
@@ -106,7 +107,7 @@ export async function getSortedCourses(req: Request, res: Response) {
     return;
   }
 
-  const cacheKey = `courses:sorted:${field}:${order || "asc"}`;
+  const cacheKey = `courses:sorted:${field}:${order}`;
 
   try {
     //  Check Redis cache first
@@ -125,9 +126,9 @@ export async function getSortedCourses(req: Request, res: Response) {
     }
 
     let sortedCourses = quickSort(courses, field as string);
-    if (order === "desc") {
-      sortedCourses = sortedCourses.reverse();
-    }
+  
+    order === "desc" && (sortedCourses = sortedCourses.reverse());
+    
 
     const result = sortedCourses.map((course) => ({
       id: course._id,
@@ -138,7 +139,7 @@ export async function getSortedCourses(req: Request, res: Response) {
 
     const responsePayload = {
       field: field,
-      order: order || "asc",
+      order: order ,
       data: result,
     };
 
